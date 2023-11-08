@@ -212,7 +212,7 @@ class _ClockTimerState extends State<ClockTimer> {
 
   void _setSnoozeAlarm(Alarm alarm) {
     var now = DateTime.now();
-    var nextAlarmTime = now.add(Duration(minutes: 2));
+    var nextAlarmTime = now.add(Duration(minutes: 5));
     taimList.add(Alarm(
       DateFormat("HH:mm EEEE", 'ja').format(nextAlarmTime),
       snooze: snooze,
