@@ -17,8 +17,7 @@ import 'setting.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) {
@@ -27,6 +26,8 @@ void callbackDispatcher() {
     return Future.value(true);
   });
 }
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+   FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +35,19 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   initializeDateFormatting();
-
+  
+  final DarwinInitializationSettings initializationSettingsIOS =
+      DarwinInitializationSettings(
+    requestSoundPermission: true,
+    requestBadgePermission: true,
+    requestAlertPermission: true,
+  );
+  
+  //initializationSettingsのオブジェクト作成
+  final InitializationSettings initializationSettings = InitializationSettings(
+    iOS: initializationSettingsIOS,
+    android: null,
+  );
   runApp(MyApp());
 }
 
@@ -90,6 +103,20 @@ class _ClockTimerState extends State<ClockTimer> {
   int _currentIndex = 0;
   Timer? _alarmTimer;
 
+  Future<void> setNotification(title,text) async {
+ const DarwinNotificationDetails iosDetails = 
+ DarwinNotificationDetails(
+         // sound: 'example.mp3',
+         presentAlert: true,
+         presentBadge: true,
+         presentSound: true);
+ NotificationDetails platformChannelSpecifics = const NotificationDetails(
+     iOS: iosDetails,
+     android: null,
+     );
+ await flutterLocalNotificationsPlugin.show(
+     0, title, text, platformChannelSpecifics);
+}
 
   @override
   void initState() {
@@ -414,10 +441,11 @@ class _ClockTimerState extends State<ClockTimer> {
                         _setAlarm();
                         print('$_selectedAlarmTime にアラームを設定しました');
                         print('$taimList');
-                        isOn3 = false!;
-                        Silent = false!;
+                        isOn3 = false;
+                        Silent = false;
+                        setNotification("a","a");
                       } else {
-                        print('アラーム時刻を選択してください');
+                        print("アラーム時刻を選択してください");
                       }
                     },
                     child: Text(
@@ -476,7 +504,7 @@ class _ClockTimerState extends State<ClockTimer> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'タイマー',
+            label: '設定',
           ),
         ],
       ),
