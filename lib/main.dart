@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) {
     // バックグラウンドで定期的に実行したい処理をここに記述します
@@ -30,6 +31,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
    FlutterLocalNotificationsPlugin();
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -48,6 +50,7 @@ void main() async {
     iOS: initializationSettingsIOS,
     android: null,
   );
+  
   runApp(MyApp());
 }
 
@@ -98,7 +101,7 @@ class _ClockTimerState extends State<ClockTimer> {
   static const MP33 = 'sounds/m.mp3';
   bool snooze = true;
   bool vibration = true;
-  bool isOn3 = false;
+  bool raberu = false;
   bool Silent = false;
   int _currentIndex = 0;
   Timer? _alarmTimer;
@@ -143,7 +146,7 @@ class _ClockTimerState extends State<ClockTimer> {
     }
   }
   void _raberuAlertDialog() async {
-    if (isOn3 == true) {
+    if (raberu == true) {
       TextEditingController textFieldController = TextEditingController();
 
       await showDialog(
@@ -162,7 +165,7 @@ class _ClockTimerState extends State<ClockTimer> {
               TextButton(
                 child: Text('キャンセル'),
                 onPressed: () {
-                  isOn3 = false;
+                  raberu = false;
                   Navigator.of(context).pop();
 
                 },
@@ -185,21 +188,22 @@ class _ClockTimerState extends State<ClockTimer> {
 
 
 
-  void _onTimer(Timer timer) {
+  void _onTimer(Timer timer,) {
     var now = DateTime.now();
     var dateFormat = DateFormat('HH:mm:ss EEEE', 'ja');
     var timeString = dateFormat.format(now);
+    
     setState(() {
       _time = timeString;
     });
-
     for (int i = 0; i < taimList.length; ++i) {
       var alarmTime = DateFormat("HH:mm EEEE", 'ja').parse(taimList[i].time);
       if (now.hour == alarmTime.hour && now.minute == alarmTime.minute) {
         if (!taimList[i].silent) {
           if (taimList[i].snooze) {
             audioPlayer.play(AssetSource(MP3));
-
+            print(taimList[i].label);
+            setNotification(taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム', ' ${now.hour}:${now.minute}');
             _setSnoozeAlarm(taimList[i]);
             _removeAlarmFromDatabase(taimList[i]);
             taimList.removeAt(i);
@@ -340,14 +344,13 @@ class _ClockTimerState extends State<ClockTimer> {
         ),
       ),
       backgroundColor: Colors.white,
-      body: _currentIndex == 0
-          ? SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+       body: _currentIndex == 0
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 100),
+              padding: const EdgeInsets.only(top: 0),
               child: Column(
                 children: [
                   SizedBox(height: 10),
@@ -358,6 +361,7 @@ class _ClockTimerState extends State<ClockTimer> {
                       child: CupertinoDatePicker(
                         mode: CupertinoDatePickerMode.time,
                         initialDateTime: DateTime.now(),
+                        use24hFormat: true,
                         onDateTimeChanged: (DateTime dateTime) {
                           setState(() {
                             _selectedAlarmTime = DateFormat("HH:mm EEEE", 'ja').format(dateTime);
@@ -366,7 +370,6 @@ class _ClockTimerState extends State<ClockTimer> {
                       ),
                     ),
                   ),
-
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -377,7 +380,7 @@ class _ClockTimerState extends State<ClockTimer> {
                           setState(() {
                             Vibration.vibrate(duration: 1000);
                             snooze = value!;
-                            // チェックボックスの状態を保存
+                            
                           });
                         },
                         activeColor: Colors.black,
@@ -391,7 +394,7 @@ class _ClockTimerState extends State<ClockTimer> {
                         onChanged: (value) {
                           setState(() {
                             vibration = value!;
-                            // チェックボックスの状態を保存
+                            
                           });
                         },
                         activeColor: Colors.black,
@@ -406,10 +409,10 @@ class _ClockTimerState extends State<ClockTimer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Checkbox(
-                        value: isOn3,
+                        value: raberu,
                         onChanged: (value) {
                           setState(() {
-                            isOn3 = value!;
+                            raberu = value!;
                             _raberuAlertDialog();
 
                           });
@@ -419,7 +422,7 @@ class _ClockTimerState extends State<ClockTimer> {
                       SizedBox(
                         height: 10,
                       ),
-                      Text(isOn3 ? " $_userInput" : "ラベル "),
+                      Text(raberu ? " $_userInput" : "ラベル "),
                       Checkbox(
                         value: Silent,
                         onChanged: (value) {
@@ -441,9 +444,8 @@ class _ClockTimerState extends State<ClockTimer> {
                         _setAlarm();
                         print('$_selectedAlarmTime にアラームを設定しました');
                         print('$taimList');
-                        isOn3 = false;
+                        raberu = false;
                         Silent = false;
-                        setNotification("a","a");
                       } else {
                         print("アラーム時刻を選択してください");
                       }
@@ -459,35 +461,35 @@ class _ClockTimerState extends State<ClockTimer> {
                 ],
               ),
             ),
-            SingleChildScrollView(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: taimList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final alarm = taimList[index];
-                    return ListTile(
-                      title: OutlinedButton(
-                        onPressed: () {},
-                        child: Text('${alarm.label}   ${_userInput}${alarm.time} (スヌーズ: ${alarm.snooze ? 'ON' : 'OFF'}) ${alarm.silent ? 'サイレント' : ''}'), // Include 'サイレント' in the text if it's a silent alarm
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          primary: Colors.black,
-                        ),
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.black),
-                        onPressed: () {
-                          _removeAlarm(index);
-                          print('$taimList');
-                        },
-                      ),
-                    );
-                  },
-                )
-            ),
-          ],
+            Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          children: taimList.map((alarm) {
+            return ListTile(
+              title: OutlinedButton(
+                onPressed: () {},
+                child: Text(
+                  '${alarm.label}   ${_userInput}${alarm.time} (スヌーズ: ${alarm.snooze ? 'ON' : 'OFF'}) ${alarm.silent ? 'サイレント' : ''}',
+                ),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  primary: Colors.black,
+                ),
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.delete, color: Colors.black),
+                onPressed: () {
+                  _removeAlarm(taimList.indexOf(alarm));
+                  print('$taimList');
+                },
+              ),
+            );
+          }).toList(),
         ),
-      )
+      ),
+    ),
+  ],       
+)
           : SettingPage(),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.black,
