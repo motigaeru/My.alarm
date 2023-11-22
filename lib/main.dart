@@ -18,7 +18,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
 
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) {
@@ -31,7 +32,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
    FlutterLocalNotificationsPlugin();
 
 void main() async {
-
+  DateTime today = DateTime.now();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -103,8 +104,29 @@ class _ClockTimerState extends State<ClockTimer> {
   bool vibration = true;
   bool raberu = false;
   bool Silent = false;
+  bool _showDatePicker = false;
   int _currentIndex = 0;
   Timer? _alarmTimer;
+  DateTime today = DateTime.now();
+  DateTime _selectedDate = DateTime.now();
+  
+
+  Future<void> _selectDate(BuildContext context) async {
+  DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: _selectedDate,
+    firstDate: DateTime.now(),
+    lastDate: DateTime(2101),
+  );
+
+  if (picked != null && picked != _selectedDate) {
+    setState(() {
+      _selectedDate = picked;
+      
+      _selectedAlarmTime = DateFormat('MM/dd EEEE', 'ja').format(picked);
+    });
+  }
+}
 
   Future<void> setNotification(title,text) async {
  const DarwinNotificationDetails iosDetails = 
@@ -188,21 +210,26 @@ class _ClockTimerState extends State<ClockTimer> {
 
 
 
-  void _onTimer(Timer timer,) {
-    var now = DateTime.now();
-    var dateFormat = DateFormat('HH:mm:ss EEEE', 'ja');
-    var timeString = dateFormat.format(now);
+  void _onTimer(Timer timer) {
+  var now = DateTime.now();
+  var dateFormat = DateFormat('HH:mm:ss EEEE', 'ja');
+  var timeString = dateFormat.format(now);
+
+  setState(() {
+    _time = timeString;
+  });
+
+  for (int i = 0; i < taimList.length; ++i) {
+    var alarmTime = DateFormat("HH:mm EEEE", 'ja').parse(taimList[i].time);
+
     
-    setState(() {
-      _time = timeString;
-    });
-    for (int i = 0; i < taimList.length; ++i) {
-      var alarmTime = DateFormat("HH:mm EEEE", 'ja').parse(taimList[i].time);
-      if (now.hour == alarmTime.hour && now.minute == alarmTime.minute) {
-        if (!taimList[i].silent) {
+    if (_showDatePicker && now.year == _selectedDate.year && now.month == _selectedDate.month && now.day == _selectedDate.day &&
+        now.hour == alarmTime.hour && now.minute == alarmTime.minute) {
+      if (!taimList[i].silent) {
           if (taimList[i].snooze) {
             audioPlayer.play(AssetSource(MP3));
             print(taimList[i].label);
+            print('日月火水木金土'[today.weekday]);
             setNotification(taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム', ' ${now.hour}:${now.minute}');
             _setSnoozeAlarm(taimList[i]);
             _removeAlarmFromDatabase(taimList[i]);
@@ -210,26 +237,29 @@ class _ClockTimerState extends State<ClockTimer> {
           }
           if (!taimList[i].snooze) {
             audioPlayer.play(AssetSource(MP3));
-
+            setNotification(taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム', ' ${now.hour}:${now.minute}');
             _removeAlarmFromDatabase(taimList[i]);
             taimList.removeAt(i);
+            print('日月火水木金土'[today.weekday]);
           }
         }
         if (taimList[i].silent) {
           if (taimList[i].snooze) {
 
-
+            setNotification(taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム', ' ${now.hour}:${now.minute}');
             _setSnoozeAlarm(taimList[i]);
             _removeAlarmFromDatabase(taimList[i]);
             taimList.removeAt(i);
             print('沈黙中');
+            print('日月火水木金土'[today.weekday]);
           }
           if (!taimList[i].snooze) {
 
-
+            setNotification(taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム', ' ${now.hour}:${now.minute}');
             _removeAlarmFromDatabase(taimList[i]);
             taimList.removeAt(i);
             print('沈黙中');
+            print('日月火水木金土'[today.weekday]);
           }
         }
         if (taimList[i].vibration) {
@@ -438,14 +468,52 @@ class _ClockTimerState extends State<ClockTimer> {
                       Text(Silent ? "サイレント " : "サイレント "),
                     ],
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: _showDatePicker,
+                        onChanged: (value) {
+                          setState(() {
+                            _showDatePicker = value!;
+                          });
+
+                          if (_showDatePicker) {
+                            _selectDate(context);
+                          }
+                        },
+                        activeColor: Colors.black,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(_showDatePicker ? "$_selectedAlarmTime" : "日付 : OFF　"),
+                      Checkbox(
+                        value: snooze,
+                        onChanged: (value) {
+                          setState(() {
+                            
+                          });
+                        },
+                        activeColor: Colors.black,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(snooze ? "曜日 : ON　" : "曜日 : OFF　"),
+                    ],
+                  ),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_selectedAlarmTime.isNotEmpty) {
-                        _setAlarm();
-                        print('$_selectedAlarmTime にアラームを設定しました');
-                        print('$taimList');
-                        raberu = false;
-                        Silent = false;
+                        
+                          _setAlarm();
+                          print('$_selectedAlarmTime にアラームを設定しました');
+                          print('$taimList');
+                          raberu = false;
+                          Silent = false;
+                          _showDatePicker = false;
+                        
                       } else {
                         print("アラーム時刻を選択してください");
                       }
@@ -469,7 +537,7 @@ class _ClockTimerState extends State<ClockTimer> {
               title: OutlinedButton(
                 onPressed: () {},
                 child: Text(
-                  '${alarm.label}   ${_userInput}${alarm.time} (スヌーズ: ${alarm.snooze ? 'ON' : 'OFF'}) ${alarm.silent ? 'サイレント' : ''}',
+                    '${alarm.label}   ${_userInput}${alarm.time} (スヌーズ: ${alarm.snooze ? 'ON' : 'OFF'}) ${alarm.silent ? 'サイレント' : ''}',
                 ),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.white,
