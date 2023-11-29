@@ -215,16 +215,13 @@ class _ClockTimerState extends State<ClockTimer> {
   var dateFormat = DateFormat('HH:mm:ss EEEE', 'ja');
   var timeString = dateFormat.format(now);
 
-  setState(() {
-    _time = timeString;
-  });
+  print('現在の時刻: $timeString');
 
   for (int i = 0; i < taimList.length; ++i) {
     var alarmTime = DateFormat("HH:mm EEEE", 'ja').parse(taimList[i].time);
 
-    
-    if (_showDatePicker && now.year == _selectedDate.year && now.month == _selectedDate.month && now.day == _selectedDate.day &&
-        now.hour == alarmTime.hour && now.minute == alarmTime.minute) {
+    if (now.hour == alarmTime.hour && now.minute == alarmTime.minute) {
+      print('アラームの時刻が一致: ${taimList[i].time}');
       if (!taimList[i].silent) {
           if (taimList[i].snooze) {
             audioPlayer.play(AssetSource(MP3));
@@ -266,7 +263,7 @@ class _ClockTimerState extends State<ClockTimer> {
           Vibration.vibrate(duration: 1000);
           print('バイブレーション中');
         }
-
+print('アラームがトリガーされました！');
       }
     }
   }
@@ -312,12 +309,19 @@ class _ClockTimerState extends State<ClockTimer> {
 
 
   void _removeAlarm(int index) {
-    setState(() {
+  setState(() {
+    if (index >= 0 && index < taimList.length) {
+      // index が有効な範囲内にあるかを確認
       audioPlayer.play(AssetSource(MMP3));
       _removeAlarmFromDatabase(taimList[index]);
       taimList.removeAt(index);
-    });
-  }
+      print('$taimList');
+    } else {
+      print('無効なインデックスが指定されました');
+    }
+  });
+}
+
 
   void _loadCheckBoxState() async {
     final documentReference = db.collection('users').doc(userID);
@@ -547,8 +551,13 @@ class _ClockTimerState extends State<ClockTimer> {
               trailing: IconButton(
                 icon: Icon(Icons.delete, color: Colors.black),
                 onPressed: () {
-                  _removeAlarm(taimList.indexOf(alarm));
-                  print('$taimList');
+                  int index = taimList.indexOf(alarm);
+                  if (index != -1) {
+                    _removeAlarm(index);
+                    print('$taimList');
+                  } else {
+                    print('要素が見つかりませんでした');
+                  }
                 },
               ),
             );
