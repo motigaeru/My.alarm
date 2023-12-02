@@ -475,23 +475,23 @@ print('アラームがトリガーされました！');
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Checkbox(
-                        value: _showDatePicker,
-                        onChanged: (value) {
-                          setState(() {
-                            _showDatePicker = value!;
-                          });
+                      // Checkbox(
+                      //   value: _showDatePicker,
+                      //   onChanged: (value) {
+                      //     setState(() {
+                      //       _showDatePicker = value!;
+                      //     });
 
-                          if (_showDatePicker) {
-                            _selectDate(context);
-                          }
-                        },
-                        activeColor: Colors.black,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(_showDatePicker ? "$_selectedAlarmTime" : "日付 : OFF　"),
+                      //     if (_showDatePicker) {
+                      //       _selectDate(context);
+                      //     }
+                      //   },
+                      //   activeColor: Colors.black,
+                      // ),
+                      // SizedBox(
+                      //   height: 10,
+                      // ),
+                      // Text(_showDatePicker ? "$_selectedAlarmTime" : "日付 : OFF　"),
                       Checkbox(
                         value: snooze,
                         onChanged: (value) {
