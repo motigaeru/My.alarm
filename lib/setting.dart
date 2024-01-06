@@ -53,6 +53,7 @@ class _SettingPageState extends State<SettingPage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+
         ),
       ),
     );
