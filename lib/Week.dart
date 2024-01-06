@@ -79,10 +79,12 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
           ),
           CheckboxListTile(
             title: Text('土曜日'),
-            value: selectedWeekdays[6],
+            value: selectedWeekdays.length > 7 ? selectedWeekdays[7] : false,
             onChanged: (value) {
               setState(() {
-                selectedWeekdays[6] = value ?? false;
+                if (selectedWeekdays.length > 7) {
+                  selectedWeekdays[7] = value ?? false;
+                }
               });
             },
           ),
