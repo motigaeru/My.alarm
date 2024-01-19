@@ -24,7 +24,7 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
       body: Column(
         children: [
           CheckboxListTile(
-            title: Text('日曜日'),
+            title: Text('月曜日'),
             value: selectedWeekdays[0],
             onChanged: (value) {
               setState(() {
@@ -33,7 +33,7 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
             },
           ),
           CheckboxListTile(
-            title: Text('月曜日'),
+            title: Text('火曜日'),
             value: selectedWeekdays[1],
             onChanged: (value) {
               setState(() {
@@ -42,7 +42,7 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
             },
           ),
           CheckboxListTile(
-            title: Text('火曜日'),
+            title: Text('水曜日'),
             value: selectedWeekdays[2],
             onChanged: (value) {
               setState(() {
@@ -51,7 +51,7 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
             },
           ),
           CheckboxListTile(
-            title: Text('水曜日'),
+            title: Text('木曜日'),
             value: selectedWeekdays[3],
             onChanged: (value) {
               setState(() {
@@ -60,7 +60,7 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
             },
           ),
           CheckboxListTile(
-            title: Text('木曜日'),
+            title: Text('金曜日'),
             value: selectedWeekdays[4],
             onChanged: (value) {
               setState(() {
@@ -69,7 +69,7 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
             },
           ),
           CheckboxListTile(
-            title: Text('金曜日'),
+            title: Text('土曜日'),
             value: selectedWeekdays[5],
             onChanged: (value) {
               setState(() {
@@ -78,7 +78,7 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
             },
           ),
           CheckboxListTile(
-            title: Text('土曜日'),
+            title: Text('日曜日'),
             value: selectedWeekdays.length > 7 ? selectedWeekdays[7] : false,
             onChanged: (value) {
               setState(() {
