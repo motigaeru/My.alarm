@@ -1,7 +1,7 @@
-
 // ignore_for_file: library_private_types_in_public_api, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WeekdaySelectionPage extends StatefulWidget {
   final Function(List<bool>) onWeekdaysSelected;
@@ -79,15 +79,16 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
           ),
           CheckboxListTile(
             title: Text('日曜日'),
-            value: selectedWeekdays.length > 7 ? selectedWeekdays[7] : false,
+            value: selectedWeekdays.length >= 7 ? selectedWeekdays[6] : false,
             onChanged: (value) {
               setState(() {
-                if (selectedWeekdays.length > 7) {
-                  selectedWeekdays[7] = value ?? false;
+                if (selectedWeekdays.length >= 7) {
+                  selectedWeekdays[6] = value ?? false;
                 }
               });
             },
           ),
+
           SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {

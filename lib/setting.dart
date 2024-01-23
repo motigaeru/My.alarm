@@ -4,9 +4,10 @@ import 'package:audioplayers/audioplayers.dart';
 // import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 void main() {
   runApp(
-    MaterialApp(
+    const MaterialApp(
       home: SettingPage(),
     ),
   );
@@ -18,6 +19,10 @@ class AudioService {
 
 class SettingPage extends StatefulWidget {
   @override
+  const SettingPage({Key? key}) : super(key: key);
+  // ignore: library_private_types_in_public_api
+  @override
+  // ignore: library_private_types_in_public_api
   _SettingPageState createState() => _SettingPageState();
 }
 
@@ -29,26 +34,9 @@ class _SettingPageState extends State<SettingPage> {
     super.initState();
 
   }
-  void _fetchDataFromFirestore() async {
-    try {
-      final snapshot = await db
-          .collection('users')
-          .doc(userID)
-          .collection('alarms')
-          .get();
-      final List<String> alarms = snapshot.docs
-          .map((doc) => doc.get('time') as String)
-          .toList();
-
-      setState(() {
-      });
-    } catch (e) {
-      print('データの取得中にエラーが発生しました: $e');
-    }
-  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
 
       body: Center(
         child: Column(

@@ -2,11 +2,12 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
-import 'alarm.dart';
+import 'navigationbar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:audio_service/audio_service.dart';
@@ -42,9 +43,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: ClockTimer(title: ''),
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyStatefulWidget(), 
       debugShowCheckedModeBanner: false,
     );
   }
-}                   
+}
+ 

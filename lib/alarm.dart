@@ -5,11 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'setting.dart';
 import 'week.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:audio_service/audio_service.dart';
@@ -85,7 +85,6 @@ class _ClockTimerState extends State<ClockTimer> {
   bool Silent = false;
   bool week = false;
   // bool _showDatePicker = false;
-  int _currentIndex = 0;
   Timer? _alarmTimer;
   DateTime today = DateTime.now();
   DateTime _selectedDate = DateTime.now();
@@ -168,11 +167,6 @@ class _ClockTimerState extends State<ClockTimer> {
   }
 }
 
-
-
-
-
-
   void _fetchDataFromFirestore() async {
   try {
     final snapshot = await db.collection('users').doc(userID).collection('alarms').get();
@@ -194,7 +188,6 @@ class _ClockTimerState extends State<ClockTimer> {
     print('データの取得中にエラーが発生しました: $e');
   }
 }
-
 
   void _raberuAlertDialog() async {
   if (raberu == true) {
@@ -357,12 +350,10 @@ class _ClockTimerState extends State<ClockTimer> {
     String alarmLabel = _userInput;
     bool isSilent = Silent;
 
-    // 各アラームの選択された曜日の新しいリストを作成
-// 新しいアラームが独自の選択された曜日を持つように修正
-    // 新しいアラームが独自の選択された曜日を持つように修正
+   
     List<bool> selectedWeekdays = week ? List.from(weekdays) : [false, false, false, false, false, false, false];
 
-    // 既存のアラームと時刻が一致するか確認
+    
     for (var existingAlarm in taimList) {
       if (existingAlarm.time == _selectedAlarmTime && ListEquality().equals(existingAlarm.selectedWeekdays, selectedWeekdays)) {
         print('同じ時刻と曜日のアラームはすでに存在します');
@@ -370,12 +361,11 @@ class _ClockTimerState extends State<ClockTimer> {
       }
     }
 
-    // 曜日が一つも選択されていない場合、デフォルトで現在の曜日を選択
+    
     if (selectedWeekdays.every((day) => !day)) {
       selectedWeekdays[today.weekday - 1] = true;
     }
 
-    // 各アラームが独自の選択された曜日を持つ新しい Alarm オブジェクトを作成
     Alarm newAlarm = Alarm(
       alarmTime,
       snooze: snooze,
@@ -385,14 +375,12 @@ class _ClockTimerState extends State<ClockTimer> {
       selectedWeekdays: selectedWeekdays, // 直接新しいリストを指定
     );
 
-    // 新しいアラームをリストに追加し、データベースに保存
+    
     taimList.add(newAlarm);
     _saveAlarmToDatabase(newAlarm);
 
-    // 選択された曜日を表示
     print('選択された曜日: ${_formatSelectedWeekdays(selectedWeekdays)}');
 
-    // 入力フィールドをクリアし、フラグをリセット
     _selectedAlarmTime = '';
     _userInput = '';
     weekdays = [false, false, false, false, false, false, false];
@@ -462,77 +450,75 @@ class _ClockTimerState extends State<ClockTimer> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '',
-          style: TextStyle(
-            fontSize: 40.0,
-          ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(
+        '',
+        style: TextStyle(
+          fontSize: 40.0,
         ),
       ),
-      backgroundColor: Colors.white,
-      body: _currentIndex == 0
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 0),
-                  child: Column(
-                    children: [
-                      Center(
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 200.0,
-                          child: CupertinoDatePicker(
-                            mode: CupertinoDatePickerMode.time,
-                            initialDateTime: DateTime.now(),
-                            use24hFormat: true,
-                            onDateTimeChanged: (DateTime dateTime) {
-                              setState(() {
-                                _selectedAlarmTime =
-                                    DateFormat("HH:mm EEEE", 'ja')
-                                        .format(dateTime);
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Checkbox(
-                            value: snooze,
-                            onChanged: (value) {
-                              setState(() {
-                                Vibration.vibrate(duration: 1000);
-                                snooze = value!;
-                              });
-                            },
-                            activeColor: Colors.black,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(snooze ? "スヌーズ : ON　" : "スヌーズ : OFF　"),
-                          Checkbox(
-                            value: vibration,
-                            onChanged: (value) {
-                              setState(() {
-                                vibration = value!;
-                              });
-                            },
-                            activeColor: Colors.black,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(vibration ? "バイブレーション : ON" : "バイブレーション : OFF"),
-                        ],
-                      ),
-                      Row(
+    ),
+    backgroundColor: Colors.white,
+    body: Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(top: 0),
+          child: Column(
+            children: [
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 200.0,
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    initialDateTime: DateTime.now(),
+                    use24hFormat: true,
+                    onDateTimeChanged: (DateTime dateTime) {
+                      setState(() {
+                        _selectedAlarmTime =
+                            DateFormat("HH:mm EEEE", 'ja').format(dateTime);
+                      });
+                    },
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Checkbox(
+                    value: snooze,
+                    onChanged: (value) {
+                      setState(() {
+                        Vibration.vibrate(duration: 1000);
+                        snooze = value!;
+                      });
+                    },
+                    activeColor: Colors.black,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(snooze ? "スヌーズ : ON　" : "スヌーズ : OFF　"),
+                  Checkbox(
+                    value: vibration,
+                    onChanged: (value) {
+                      setState(() {
+                        vibration = value!;
+                      });
+                    },
+                    activeColor: Colors.black,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(vibration ? "バイブレーション : ON" : "バイブレーション : OFF"),
+                ],
+              ),
+              Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Checkbox(
@@ -602,90 +588,66 @@ class _ClockTimerState extends State<ClockTimer> {
                         ),
 Text(week ? "曜日 : ${_formatSelectedWeekdays(weekdays)}" : "曜日 : OFF　"),
                         ],
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (_selectedAlarmTime.isNotEmpty) {
-                            _setAlarm();
-                            print('$_selectedAlarmTime にアラームを設定しました');
-                            print('$taimList');
-                            weekdays = [false, false, false, false, false, false, false];
-                            raberu = false;
-                            Silent = false;
-                            week = false;
-                            
-                            // _showDatePicker = false;
-                          } else {
-                            print("アラーム時刻を選択してください");
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.black,
-                          backgroundColor: Colors.white,
-                        ),
-                        child: Text(
-                          'アラームを設定する',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: taimList.map((alarm) {
-                  return ListTile(
-                    title: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.white,
-                      ),
-                      child: Text(
-'${alarm.label}   $_userInput${alarm.time} (スヌーズ: ${alarm.snooze ? 'ON' : 'OFF'}) ${alarm.silent ? 'サイレント' : ''} ${_formatSelectedWeekdays(alarm.selectedWeekdays)}',
-),
-
-
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.black),
-                      onPressed: () {
-                        int index = taimList.indexOf(alarm);
-                        if (index != -1) {
-                          _removeAlarm(index);
-                          print('$taimList');
-                        } else {
-                          print('要素が見つかりませんでした');
-                        }
-                      },
-                    ),
-                  );
-                }).toList(),
               ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_selectedAlarmTime.isNotEmpty) {
+                    _setAlarm();
+                    print('$_selectedAlarmTime にアラームを設定しました');
+                    print('$taimList');
+                    weekdays = [false, false, false, false, false, false, false];
+                    raberu = false;
+                    Silent = false;
+                    week = false;
+                  } else {
+                    print("アラーム時刻を選択してください");
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white,
+                ),
+                child: Text(
+                  'アラームを設定する',
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: taimList.map((alarm) {
+                return ListTile(
+                  title: OutlinedButton(
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.white,
+                    ),
+                    child: Text(
+                      '${alarm.label}   $_userInput${alarm.time} (スヌーズ: ${alarm.snooze ? 'ON' : 'OFF'}) ${alarm.silent ? 'サイレント' : ''} ${_formatSelectedWeekdays(alarm.selectedWeekdays)}',
+                    ),
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.black),
+                    onPressed: () {
+                      int index = taimList.indexOf(alarm);
+                      if (index != -1) {
+                        _removeAlarm(index);
+                        print('$taimList');
+                      } else {
+                        print('要素が見つかりませんでした');
+                      }
+                    },
+                  ),
+                );
+              }).toList(),
             ),
           ),
-        ],
-      )
-    : SettingPage(),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.black,
-        currentIndex: _currentIndex,
-        onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.access_alarm),
-            label: 'アラーム',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '設定',
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 }
