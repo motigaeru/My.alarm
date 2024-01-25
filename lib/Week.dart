@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WeekdaySelectionPage extends StatefulWidget {
   final Function(List<bool>) onWeekdaysSelected;

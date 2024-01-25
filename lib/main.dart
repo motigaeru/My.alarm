@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 // import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:audio_service/audio_service.dart';
@@ -26,7 +27,7 @@ void main() async {
   initializeDateFormatting();
 
   const DarwinInitializationSettings initializationSettingsIOS =
-    DarwinInitializationSettings(
+      DarwinInitializationSettings(
     requestSoundPermission: true,
     requestBadgePermission: true,
     requestAlertPermission: true,
@@ -36,8 +37,18 @@ void main() async {
     iOS: initializationSettingsIOS,
     android: null,
   );
-  runApp(const MyApp());
+
+  // Lock the orientation to portrait
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
+
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 

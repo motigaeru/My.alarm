@@ -9,7 +9,6 @@ import 'week.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:audio_service/audio_service.dart';
@@ -21,9 +20,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+
 class ClockTimer extends StatefulWidget {
   const ClockTimer({Key? key, required this.title}) : super(key: key);
   final String title;
+
+  
+  void onWeekdaysSelected(List<bool> selectedWeekdays) {
+    print('選択された曜日: $selectedWeekdays');
+  }
 
   @override
   _ClockTimerState createState() => _ClockTimerState();
@@ -69,6 +74,7 @@ class Alarm {
 
 
 class _ClockTimerState extends State<ClockTimer> {
+  double alarmVolume = 0.5; 
   List<bool> weekdays = [false, false, false, false, false, false, false];
   String _userInput = '';
   List<Alarm> taimList = [];
@@ -89,8 +95,6 @@ class _ClockTimerState extends State<ClockTimer> {
   DateTime today = DateTime.now();
   DateTime _selectedDate = DateTime.now();
   
-  
-
  String _formatSelectedWeekdays(List<bool> selectedWeekdays) {
   final weekdays = ['月', '火', '水', '木', '金', '土', '日'];
   List<String> selectedDays = [];
@@ -102,6 +106,16 @@ class _ClockTimerState extends State<ClockTimer> {
   return '(${selectedDays.join(',')})';
 }
 
+ void _startTimer() {
+    _alarmTimer = Timer.periodic(const Duration(seconds: 1), _onTimer);
+  }
+
+  @override
+void dispose() {
+  _alarmTimer?.cancel();
+  audioPlayer.dispose();
+  super.dispose();
+}
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
@@ -134,13 +148,15 @@ class _ClockTimerState extends State<ClockTimer> {
         0, title, text, platformChannelSpecifics);
   }
 
-  @override
+   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), _onTimer);
+    // Initialize the timer in initState.
+    _alarmTimer = Timer.periodic(const Duration(seconds: 1), _onTimer);
     _loadCheckBoxState();
     _fetchDataFromFirestore();
   }
+
   void _setWeekdays(List<bool> selectedWeekdays) {
     setState(() {
       week = selectedWeekdays.contains(true);
@@ -154,16 +170,17 @@ class _ClockTimerState extends State<ClockTimer> {
     MaterialPageRoute(
       builder: (context) => WeekdaySelectionPage(
         onWeekdaysSelected: (weekdays) {
-          // 新しい曜日の設定を _setWeekdays メソッドを使用して反映
-          _setWeekdays(weekdays);
+          if (weekdays != null) {
+            _setWeekdays(weekdays);
+            print('Selected weekdays: $weekdays');
+          }
         },
       ),
     ),
   );
 
   if (selectedWeekdays != null) {
-    // UI に選択された曜日を表示
-    print('Selected Weekdays: $selectedWeekdays');
+    print('Selected weekdays: $selectedWeekdays');
   }
 }
 
@@ -183,6 +200,7 @@ class _ClockTimerState extends State<ClockTimer> {
 
     setState(() {
       taimList = alarms;
+      
     });
   } catch (e) {
     print('データの取得中にエラーが発生しました: $e');
@@ -232,81 +250,86 @@ class _ClockTimerState extends State<ClockTimer> {
 }
 
   void _onTimer(Timer timer) {
-  var now = DateTime.now();
-  var dateFormat = DateFormat('HH:mm:ss EEEE', 'ja');
-  var timeString = dateFormat.format(now);
-  print('現在の時刻: $timeString');
+  if (mounted) {
+    var now = DateTime.now();
+    var dateFormat = DateFormat('HH:mm:ss EEEE', 'ja');
+    var timeString = dateFormat.format(now);
+    print('現在の時刻: $timeString');
 
-  List<Alarm> alarmsToRemove = [];
+    List<Alarm> alarmsToRemove = [];
 
-  for (int i = 0; i < taimList.length; ++i) {
-    var alarmTime = DateFormat("HH:mm EEEE", 'ja').parse(taimList[i].time);
+    for (int i = 0; i < taimList.length; ++i) {
+      var alarmTime = DateFormat("HH:mm EEEE", 'ja').parse(taimList[i].time);
 
-    // 曜日の一致も確認する
-    if (now.hour == alarmTime.hour &&
-        now.minute == alarmTime.minute &&
-        taimList[i].selectedWeekdays[now.weekday - 1]) {
-      print('アラームの時刻と曜日が一致: ${taimList[i].time}');
-      print('アラームがトリガーされました！');
+      // 曜日の一致も確認する
+      if (now.hour == alarmTime.hour &&
+          now.minute == alarmTime.minute &&
+          taimList[i].selectedWeekdays[now.weekday - 1]) {
+        print('アラームの時刻と曜日が一致: ${taimList[i].time}');
+        print('アラームがトリガーされました！');
 
-      if (!taimList[i].silent) {
-        if (taimList[i].snooze) {
-          audioPlayer.play(AssetSource(MP3));
-          print(taimList[i].label);
-          print('月火水木金土日'[(today.weekday - 1) % 7]);
-          setNotification(
-              taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
-              ' ${now.hour}:${now.minute}');
-          _setSnoozeAlarm(taimList[i]);
-          alarmsToRemove.add(taimList[i]);
+        if (!taimList[i].silent) {
+          if (taimList[i].snooze) {
+            audioPlayer.play(AssetSource(MP3));
+            print(taimList[i].label);
+            print('月火水木金土日'[(today.weekday - 1) % 7]);
+            setNotification(
+                taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
+                ' ${now.hour}:${now.minute}');
+            _setSnoozeAlarm(taimList[i]);
+            alarmsToRemove.add(taimList[i]);
+          }
+
+          if (!taimList[i].snooze) {
+            audioPlayer.play(AssetSource(MP3));
+            setNotification(
+                taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
+                ' ${now.hour}:${now.minute}');
+            alarmsToRemove.add(taimList[i]);
+          }
         }
 
-        if (!taimList[i].snooze) {
-          audioPlayer.play(AssetSource(MP3));
-          setNotification(
-              taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
-              ' ${now.hour}:${now.minute}');
-          alarmsToRemove.add(taimList[i]);
+        if (taimList[i].silent) {
+          if (taimList[i].snooze) {
+            setNotification(
+                taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
+                ' ${now.hour}:${now.minute}');
+            _setSnoozeAlarm(taimList[i]);
+            alarmsToRemove.add(taimList[i]);
+            print('沈黙中');
+            print('月火水木金土日'[(today.weekday - 1) % 7]);
+          }
+
+          if (!taimList[i].snooze) {
+            setNotification(
+                taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
+                ' ${now.hour}:${now.minute}');
+            alarmsToRemove.add(taimList[i]);
+            print('沈黙中');
+            print('月火水木金土日'[(today.weekday - 1) % 7]);
+          }
         }
+
+        if (taimList[i].vibration) {
+          Vibration.vibrate(duration: 1000);
+          print('バイブレーション中');
+        }
+        print('アラームがトリガーされました！');
       }
+    }
 
-      if (taimList[i].silent) {
-        if (taimList[i].snooze) {
-          setNotification(
-              taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
-              ' ${now.hour}:${now.minute}');
-          _setSnoozeAlarm(taimList[i]);
-          alarmsToRemove.add(taimList[i]);
-          print('沈黙中');
-          print('月火水木金土日'[(today.weekday - 1) % 7]);
-        }
-
-        if (!taimList[i].snooze) {
-          setNotification(
-              taimList[i].label.isNotEmpty ? taimList[i].label : 'アラーム',
-              ' ${now.hour}:${now.minute}');
-          alarmsToRemove.add(taimList[i]);
-          print('沈黙中');
-          print('月火水木金土日'[(today.weekday - 1) % 7]);
-        }
+    // 削除するアラームを削除
+    for (var alarm in alarmsToRemove) {
+      if (mounted) {
+        setState(() {
+          taimList.remove(alarm);
+        });
       }
-
-      if (taimList[i].vibration) {
-        Vibration.vibrate(duration: 1000);
-        print('バイブレーション中');
-      }
-      print('アラームがトリガーされました！');
+      _removeAlarmFromDatabase(alarm);
     }
   }
-
-  // 削除するアラームを削除
-  for (var alarm in alarmsToRemove) {
-    setState(() {
-      taimList.remove(alarm);
-    });
-    _removeAlarmFromDatabase(alarm);
-  }
 }
+
 
 
 
@@ -350,10 +373,8 @@ class _ClockTimerState extends State<ClockTimer> {
     String alarmLabel = _userInput;
     bool isSilent = Silent;
 
-   
     List<bool> selectedWeekdays = week ? List.from(weekdays) : [false, false, false, false, false, false, false];
 
-    
     for (var existingAlarm in taimList) {
       if (existingAlarm.time == _selectedAlarmTime && ListEquality().equals(existingAlarm.selectedWeekdays, selectedWeekdays)) {
         print('同じ時刻と曜日のアラームはすでに存在します');
@@ -361,10 +382,12 @@ class _ClockTimerState extends State<ClockTimer> {
       }
     }
 
-    
     if (selectedWeekdays.every((day) => !day)) {
       selectedWeekdays[today.weekday - 1] = true;
     }
+
+    // Record the selected weekdays here
+    widget.onWeekdaysSelected(selectedWeekdays);
 
     Alarm newAlarm = Alarm(
       alarmTime,
@@ -372,10 +395,9 @@ class _ClockTimerState extends State<ClockTimer> {
       vibration: vibration,
       silent: isSilent,
       label: alarmLabel,
-      selectedWeekdays: selectedWeekdays, // 直接新しいリストを指定
+      selectedWeekdays: selectedWeekdays,
     );
 
-    
     taimList.add(newAlarm);
     _saveAlarmToDatabase(newAlarm);
 
@@ -450,22 +472,18 @@ class _ClockTimerState extends State<ClockTimer> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(
-        '',
-        style: TextStyle(
-          fontSize: 40.0,
-        ),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(''),
       ),
-    ),
-    backgroundColor: Colors.white,
-    body: Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
+      backgroundColor: Colors.white,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
         Padding(
+          
           padding: const EdgeInsets.only(top: 0),
           child: Column(
             children: [
@@ -589,26 +607,27 @@ Widget build(BuildContext context) {
 Text(week ? "曜日 : ${_formatSelectedWeekdays(weekdays)}" : "曜日 : OFF　"),
                         ],
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_selectedAlarmTime.isNotEmpty) {
-                    _setAlarm();
-                    print('$_selectedAlarmTime にアラームを設定しました');
-                    print('$taimList');
-                    weekdays = [false, false, false, false, false, false, false];
-                    raberu = false;
-                    Silent = false;
-                    week = false;
-                  } else {
-                    print("アラーム時刻を選択してください");
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                ),
-                child: Text(
-                  'アラームを設定する',
+             ElevatedButton(
+            onPressed: () async {
+              if (_selectedAlarmTime.isNotEmpty) {
+                _setAlarm();
+                print('$_selectedAlarmTime にアラームを設定しました');
+                print('$taimList');
+                weekdays = [false, false, false, false, false, false, false];
+                raberu = false;
+                Silent = false;
+                week = false;
+               
+              } else {
+                print("アラーム時刻を選択してください");
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.white,
+            ),
+            child: Text(
+              'アラームを設定する',
                 ),
               ),
             ],
