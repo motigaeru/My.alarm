@@ -9,6 +9,7 @@ import 'firebase_options.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+
 // import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:audio_service/audio_service.dart';
@@ -16,7 +17,7 @@ import 'package:flutter/services.dart';
 // import 'package:flutter/services.dart';
 // import 'package:move_to_background/move_to_background.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-   FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   DateTime today = DateTime.now();
@@ -48,7 +49,6 @@ void main() async {
   );
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -56,12 +56,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyStatefulWidget(), 
+      theme: ThemeData.dark(),
+      home: const MyStatefulWidget(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
- 
