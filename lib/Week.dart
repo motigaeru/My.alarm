@@ -122,11 +122,10 @@ class _WeekdaySelectionPageState extends State<WeekdaySelectionPage> {
         onPressed: () {
           widget.onWeekdaysSelected(selectedWeekdays);
           Navigator.pop(context);
-        }, // アイコンの色を黒に設定
+        },
         backgroundColor: Colors.yellow,
         child: Icon(Icons.arrow_back, color: Colors.black),
       ),
-      // FloatingActionButtonを画面右下に配置
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }

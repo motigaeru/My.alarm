@@ -39,7 +39,6 @@ void main() async {
     android: null,
   );
 
-  // Lock the orientation to portrait
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   runApp(

@@ -204,7 +204,7 @@ class _ClockTimerState extends State<ClockTimer> {
           snooze: data['snooze'] ?? true,
           vibration: data['vibration'] ?? true,
           label: data['label'] ?? '',
-          selectedWeekdays: data['selectedWeekdays'] ?? [], // 曜日情報を取得
+          selectedWeekdays: data['selectedWeekdays'] ?? [],
         );
       }).toList();
 
@@ -233,16 +233,27 @@ class _ClockTimerState extends State<ClockTimer> {
             ),
             actions: <Widget>[
               TextButton(
-                child: Text('キャンセル'),
+                child: Text(
+                  'キャンセル',
+                  style: TextStyle(
+                    color: Colors.yellow, 
+                  ),
+                ),
                 onPressed: () {
                   setState(() {
                     raberu = false;
                   });
+
                   Navigator.of(context).pop();
                 },
               ),
               TextButton(
-                child: Text('OK'),
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.yellow, 
+                  ),
+                ),
                 onPressed: () {
                   setState(() {
                     _userInput = textFieldController.text;
@@ -344,18 +355,16 @@ class _ClockTimerState extends State<ClockTimer> {
     var formattedNextAlarmTime =
         DateFormat("HH:mm EEEE", 'ja').format(nextAlarmTime);
 
-    List<bool> selectedWeekdays = alarm.selectedWeekdays; // オリジナルのアラームの曜日情報を取得
-
+    List<bool> selectedWeekdays = alarm.selectedWeekdays;
     taimList.add(Alarm(
       formattedNextAlarmTime,
       snooze: snooze,
       vibration: vibration,
       label: alarm.label,
       silent: alarm.silent,
-      selectedWeekdays: selectedWeekdays, // スヌーズアラームにも同じ曜日情報を渡す
+      selectedWeekdays: selectedWeekdays,
     ));
 
-    // 新しいアラームのデータベースへの保存
     _saveAlarmToDatabase(taimList.last);
   }
 
@@ -451,7 +460,7 @@ class _ClockTimerState extends State<ClockTimer> {
         'snooze': alarm.snooze,
         'vibration': alarm.vibration,
         'label': alarm.label,
-        'selectedWeekdays': alarm.selectedWeekdays, // 曜日情報を保存
+        'selectedWeekdays': alarm.selectedWeekdays,
       });
       print('アラームをデータベースに保存しました: ${alarm.time}');
     } catch (e) {
@@ -493,7 +502,7 @@ class _ClockTimerState extends State<ClockTimer> {
                 Center(
                   child: SizedBox(
                     width: double.infinity,
-                    height: 200.0,
+                    height: 150.0,
                     child: CupertinoDatePicker(
                       mode: CupertinoDatePickerMode.time,
                       initialDateTime: DateTime.now(),

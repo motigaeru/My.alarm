@@ -17,7 +17,7 @@ class _SettingPageState extends State<SettingPage> {
   final db = FirebaseFirestore.instance;
   final userID = FirebaseAuth.instance.currentUser?.uid ?? 'test';
   String inputText = '';
-  double alarmVolume = 0.5; // デフォルトの音量
+  double alarmVolume = 0.5;
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _SettingPageState extends State<SettingPage> {
                             alarmVolume = value;
                           });
                         },
-                        activeColor: Colors.yellow, // スライダーの色を黄色に設定
+                        activeColor: Colors.yellow,
                       ),
                     ),
                   ],
