@@ -1,18 +1,28 @@
-# untitled7
+# アラームアプリ
 
-A new Flutter project.
+制作期間4ヶ月
 
-## Getting Started
+# 機能
 
-This project is a starting point for a Flutter application.
+- アラーム設定機能
+- アラーム音を消す機能
+- アラームに名前をつける機能
+- バイブレーション機能
+- スヌーズ機能(５分刻み)
+- 鳴る曜日を指定できる機能
+- 音量調節機能
+- 通知機能（バックグランド）
 
-A few resources to get you started if this is your first Flutter project:
+# 環境構築
+以下参考にした記事
+- https://zenn.dev/kboy/books/ca6a9c93fd23f3/viewer/5232dc
+- https://qiita.com/Hershel/items/2c386238d47924a5253a
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# 稼働手順
+- X CodeかAndroid Studioを使いシュミレータを開く
+- VS CodeやAndroid Studioでcode runする
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# -
-# -
+# スキル
+
+
+# 今後の展望
