@@ -23,6 +23,7 @@
 - VS CodeやAndroid Studioでcode runする
 
 # スキル
-
+- 空白
 
 # 今後の展望
+- 空白
