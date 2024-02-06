@@ -2,6 +2,11 @@
 
 制作期間4ヶ月
 
+##ツールのバージョン
+- X Code 15.0.1
+- VS Code 1.59.1
+- Android Studio Android Studio 2022.1, build AI-221.6008.13.2211.9619390. Copyright JetBrains s.r.o., (c) 2000-2023
+
 # 機能
 
 - アラーム設定機能
@@ -22,8 +27,6 @@
 - X CodeかAndroid Studioを使いシュミレータを開く
 - VS CodeやAndroid Studioでcode runする
 
-# スキル
-- 空白
-
 # 今後の展望
-- 空白
+- このアプリをストアにリリースする
+- 
