@@ -24,8 +24,10 @@
 - 通知機能（バックグランド）
 
 # 環境構築
-- 
-- 
+1 https://docs.flutter.dev/get-started/install（公式サイト）のInstalページでmacOSを選択
+2 zip ファイルをダウンロードし解凍
+3 ユーザーフォルダ直下に「development」フォルダを作成し、ダウンロードした「flutter」フォルダを移動
+4 macのターミナルを開き `export PATH="$PATH:[flutterフォルダが格納されているディレクトリ]/flutter/bin"`
 以下参考にした記事
 - https://zenn.dev/kboy/books/ca6a9c93fd23f3/viewer/5232dc
 - https://qiita.com/Hershel/items/2c386238d47924a5253a
