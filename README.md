@@ -27,10 +27,21 @@
 - 1 https://docs.flutter.dev/get-started/install （公式サイト）のInstalページでmacOSを選択
 - 2 zip ファイルをダウンロードし解凍
 - 3 ユーザーフォルダ直下に「development」フォルダを作成し、ダウンロードした「flutter」フォルダを移動
-- 4 macのターミナルを開き `export PATH="$PATH:[flutterフォルダが格納されているディレクトリ]/flutter/bin"`
-以下参考にした記事
+- 4 macのターミナルを開き `export PATH="$PATH:[flutterフォルダが格納されているディレクトリ]/flutter/bin"`を入力
+- 5 esc キーを押してINSERTモードを終了し、:WQ と入力しENTERで内容を上書き保存
+- 6 ターミナルで `which flutter`を実行する
+- 7 Android Studioを入れて設定画面からDartをインストールする
+- 8 Android Studio を再起動し、初期画面に「start a new flutter project」があることを確認する
+- 9 Xcodeを入れる
+- 10 VScodeにflutterとDartのプラグインを入れる
+- 11 Shift＋command＋Pを押し、入力欄に`flutter`と入力します。
+- 12 `New Project`を押し、`Application`と言う部分を押す
+- 13 好きな場所を選択して`Select a folder to create the project in`と言う部分を押します。
+- 14 `Project Name`にプロジェクトフォルダの名前を入力します。
+- 以下参考にした記事
 - https://zenn.dev/kboy/books/ca6a9c93fd23f3/viewer/5232dc
 - https://qiita.com/Hershel/items/2c386238d47924a5253a
+- https://zenn.dev/lisras/articles/9f4fe12f920e59
 
 # 稼働手順
 - X CodeかAndroid Studioを使いシュミレータを開く
