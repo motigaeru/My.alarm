@@ -7,7 +7,7 @@
 - VS Code&emsp;1.59.1
 - Android Studio&emsp;Android Studio 2022.1, build AI-221.6008.13.2211.9619390. Copyright JetBrains s.r.o., (c) 2000-2023
 
-#作った動機
+# 作った動機
 
 - すぐにアラームの設定ができるアプリを作って見たかった
 - Dart言語の理解の為
