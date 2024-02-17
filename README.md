@@ -4,7 +4,7 @@
 
 ## ツールのバージョン
 - X Code&emsp;15.0.1
-- VS Code&emsp;1.59.1
+- VS Code&emsp;1.86.0
 - Android Studio&emsp;Android Studio 2022.1, build AI-221.6008.13.2211.9619390. Copyright JetBrains s.r.o., (c) 2000-2023
 
 # 作った動機
